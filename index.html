@@ -1,247 +1,647 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Top Creators</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>⚡ Top Creators — LIVE</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05060e;
+  --card: #0e1020;
+  --border: #1a1d35;
+  --c1: #00f5ff;
+  --c2: #ff2d78;
+  --c3: #ffe600;
+  --c4: #a855f7;
+  --c5: #22d3ee;
+  --text: #e8eaf6;
+  --muted: #4b5563;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Rajdhani',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
 
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: #f0f2f5;
-      min-height: 100vh;
-      padding: 40px 16px 60px;
-    }
+/* ── BG: animated aurora mesh ── */
+.aurora{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(0,245,255,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 80% 70%, rgba(255,45,120,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 50% at 50% 10%, rgba(168,85,247,.05) 0%, transparent 70%);
+  animation: auroraShift 12s ease-in-out infinite alternate;
+}
+@keyframes auroraShift{
+  0%  {background-position:0% 0%,100% 100%,50% 0%}
+  100%{background-position:10% 20%,90% 80%,60% 10%}
+}
 
-    .page-title {
-      text-align: center;
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: #1a1a2e;
-      margin-bottom: 36px;
-      letter-spacing: -0.5px;
-    }
+/* ── Floating particles (CSS only) ── */
+.particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.p{
+  position:absolute;border-radius:50%;
+  animation:floatParticle linear infinite;
+  opacity:0;
+}
+@keyframes floatParticle{
+  0%  {transform:translateY(100vh) scale(0);opacity:0}
+  10% {opacity:.6}
+  90% {opacity:.3}
+  100%{transform:translateY(-10vh) scale(1.2);opacity:0}
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      max-width: 960px;
-      margin: 0 auto;
-    }
+/* scanlines */
+body::after{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px);
+  pointer-events:none;z-index:1;
+}
 
-    @media (max-width: 768px) {
-      .grid { grid-template-columns: repeat(2, 1fr); }
-      .cta-card { grid-column: span 2; }
-    }
+/* ── Layout ── */
+.page{position:relative;z-index:2;max-width:1040px;margin:0 auto;padding:32px 16px 60px}
 
-    @media (max-width: 480px) {
-      .grid { grid-template-columns: 1fr; }
-      .cta-card { grid-column: span 1; }
-    }
+/* ── Top bar ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(14,16,32,.8);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:10px 20px;
+  margin-bottom:28px;
+  backdrop-filter:blur(12px);
+}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.live-chip{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,45,120,.12);
+  border:1px solid rgba(255,45,120,.35);
+  border-radius:999px;padding:4px 12px;
+  font-size:.7rem;letter-spacing:2px;color:var(--c2);font-weight:700;
+  animation:chipPulse 2s ease infinite;
+}
+.live-chip::before{content:'';width:6px;height:6px;background:var(--c2);border-radius:50%;animation:blink 1s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
+@keyframes chipPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,45,120,.4)}50%{box-shadow:0 0 0 8px rgba(255,45,120,0)}}
 
-    /* ── Creator Card ── */
-    .card {
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 24px rgba(0,0,0,0.12);
-    }
+.topbar-title{font-family:'Orbitron',monospace;font-size:.85rem;letter-spacing:2px;color:var(--c1);opacity:.7}
+.clock{font-family:'Orbitron',monospace;font-size:.9rem;color:var(--text);letter-spacing:2px;opacity:.6}
 
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+/* ── Header ── */
+.header{text-align:center;margin-bottom:32px}
+.header h1{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(1.8rem,5vw,3.4rem);
+  font-weight:900;
+  background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c1));
+  background-size:300%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 5s linear infinite;
+  letter-spacing:2px;
+}
+@keyframes shimmer{to{background-position:-300% center}}
 
-    .rank-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #1a1a2e;
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
+.header .sub{
+  margin-top:8px;font-size:.85rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;
+}
 
-    .rank-badge.gold   { background: linear-gradient(135deg, #f7971e, #ffd200); color: #1a1a2e; }
-    .rank-badge.silver { background: linear-gradient(135deg, #bdc3c7, #95a5a6); color: #fff; }
-    .rank-badge.bronze { background: linear-gradient(135deg, #cd6133, #e17055); color: #fff; }
+/* ── Hype ticker ── */
+.ticker-outer{
+  overflow:hidden;
+  background:rgba(0,245,255,.04);
+  border-top:1px solid rgba(0,245,255,.1);
+  border-bottom:1px solid rgba(0,245,255,.1);
+  padding:9px 0;margin-bottom:30px;
+}
+.ticker-inner{
+  display:inline-flex;gap:56px;white-space:nowrap;
+  animation:tickRun 28s linear infinite;
+  font-size:.8rem;letter-spacing:1.5px;color:var(--c1);font-weight:600;
+}
+@keyframes tickRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-    .card-label {
-      font-size: 0.78rem;
-      color: #9b9b9b;
-      font-weight: 500;
-    }
+/* ── Race bar section ── */
+.race-label{
+  font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:3px;
+  color:var(--muted);text-transform:uppercase;margin-bottom:10px;text-align:center;
+}
+.race-track{
+  display:flex;flex-direction:column;gap:8px;
+  background:rgba(14,16,32,.6);border:1px solid var(--border);
+  border-radius:16px;padding:16px 18px;margin-bottom:30px;
+  backdrop-filter:blur(8px);
+}
+.race-row{display:flex;align-items:center;gap:12px}
+.race-rank{
+  font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;
+  width:28px;text-align:right;flex-shrink:0;
+}
+.race-name{font-size:.82rem;font-weight:700;width:90px;flex-shrink:0;letter-spacing:.5px;color:var(--text)}
+.race-bar-bg{flex:1;height:14px;background:rgba(255,255,255,.05);border-radius:999px;overflow:hidden}
+.race-bar{height:100%;border-radius:999px;position:relative;transition:width 3s ease}
+.race-bar::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 60%,rgba(255,255,255,.3));
+  animation:barShine 2.5s ease infinite;
+}
+@keyframes barShine{0%,100%{opacity:.4}50%{opacity:1}}
+.race-pct{font-family:'Orbitron',monospace;font-size:.6rem;color:var(--muted);width:34px;text-align:right;flex-shrink:0}
 
-    /* KEY FIX: tall enough iframe so livecounts widget shows fully */
-    .card iframe {
-      width: 100%;
-      height: 140px;          /* ← was 80px, now 140px */
-      border-radius: 12px;
-      border: 1px solid #e8e8e8;
-      display: block;
-    }
+/* ── Cards grid ── */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:720px){.grid{grid-template-columns:repeat(2,1fr)}.cta{grid-column:span 2}}
+@media(max-width:460px){.grid{grid-template-columns:1fr}.cta{grid-column:span 1}}
 
-    /* ── Empty slot ── */
-    .empty-slot {
-      border: 2px dashed #ccc;
-      border-radius: 18px;
-      background: #fafafa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 16px;
-      text-align: center;
-      gap: 8px;
-      min-height: 180px;
-      transition: background 0.2s;
-    }
-    .empty-slot:hover { background: #f0f0f0; }
+/* ── Card ── */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;padding:16px;
+  display:flex;flex-direction:column;gap:12px;
+  position:relative;overflow:hidden;
+  transition:transform .3s,box-shadow .3s;
+  animation:riseIn .6s ease both;
+}
+/* corner glow line */
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  border-radius:20px 20px 0 0;
+  transition:opacity .3s;
+}
+.card[data-rank="1"]::before{background:linear-gradient(90deg,transparent,#ffd200,transparent)}
+.card[data-rank="2"]::before{background:linear-gradient(90deg,transparent,#b0b0b0,transparent)}
+.card[data-rank="3"]::before{background:linear-gradient(90deg,transparent,#e17055,transparent)}
+.card[data-rank="4"]::before{background:linear-gradient(90deg,transparent,var(--c4),transparent)}
+.card[data-rank="5"]::before{background:linear-gradient(90deg,transparent,var(--c5),transparent)}
 
-    .empty-rank {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: #ddd; color: #666;
-      font-size: 0.75rem; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-    }
+.card:nth-child(1){animation-delay:.05s}
+.card:nth-child(2){animation-delay:.12s}
+.card:nth-child(3){animation-delay:.19s}
+.card:nth-child(4){animation-delay:.26s}
+.card:nth-child(5){animation-delay:.33s}
 
-    .empty-slot h3 { font-size: 1rem; font-weight: 700; color: #555; }
-    .empty-slot p  { font-size: 0.8rem; color: #999; }
+@keyframes riseIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 
-    /* ── CTA banner ── */
-    .cta-card {
-      grid-column: span 3;
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-      border-radius: 20px;
-      padding: 28px 24px;
-      text-align: center;
-      color: #fff;
-      box-shadow: 0 4px 20px rgba(238, 90, 36, 0.35);
-    }
+.card-head{display:flex;align-items:center;justify-content:space-between}
+.rank-wrap{display:flex;align-items:center;gap:9px}
+.badge{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;flex-shrink:0;
+}
+.b1{background:linear-gradient(135deg,#f7971e,#ffd200);color:#1a1a2e;box-shadow:0 0 14px rgba(255,210,0,.5)}
+.b2{background:linear-gradient(135deg,#c8c8c8,#888);color:#111;box-shadow:0 0 10px rgba(180,180,180,.3)}
+.b3{background:linear-gradient(135deg,#cd6133,#e17055);color:#fff;box-shadow:0 0 10px rgba(205,97,51,.4)}
+.b4{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;box-shadow:0 0 10px rgba(124,58,237,.4)}
+.b5{background:linear-gradient(135deg,#0891b2,#22d3ee);color:#fff;box-shadow:0 0 10px rgba(34,211,238,.35)}
 
-    .cta-card h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
-    .cta-card p  { font-size: 0.95rem; opacity: 0.92; }
-    .cta-card .sub-text { margin-top: 4px; font-size: 0.85rem; opacity: 0.78; }
+.cname{font-size:.8rem;font-weight:700;letter-spacing:.8px;color:var(--text);text-transform:uppercase}
 
-    .btn-row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 16px;
-    }
+.pill{
+  font-size:.62rem;font-weight:700;letter-spacing:1.5px;
+  padding:3px 9px;border-radius:999px;
+  border:1px solid rgba(0,245,255,.2);color:var(--c1);background:rgba(0,245,255,.06);
+}
 
-    .btn {
-      padding: 9px 22px;
-      border-radius: 999px;
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: transform 0.15s, filter 0.15s;
-    }
-    .btn:hover { transform: scale(1.05); filter: brightness(1.08); }
+/* iframe stays 140px */
+.card iframe{width:100%;height:140px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:#080910;display:block}
 
-    .btn-sub  { background: #c0392b; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
-    .btn-like { background: #fff; color: #1a1a2e; }
-    .btn-cmt  { background: #fff; color: #1a1a2e; }
-  </style>
+/* ── Empty slot ── */
+.empty{
+  border:2px dashed rgba(168,85,247,.35);border-radius:20px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:28px 16px;text-align:center;gap:10px;min-height:210px;
+  background:rgba(168,85,247,.04);
+  animation:riseIn .6s ease .4s both;
+  position:relative;overflow:hidden;
+}
+/* animated shimmer border */
+.empty::after{
+  content:'';position:absolute;inset:-2px;border-radius:20px;
+  background:conic-gradient(from var(--a,0deg),transparent 80%,rgba(168,85,247,.6) 90%,transparent 100%);
+  animation:rotateBorder 4s linear infinite;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  padding:2px;
+}
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes rotateBorder{to{--a:360deg}}
+
+.empty-badge{
+  width:40px;height:40px;border-radius:10px;
+  background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.35);
+  color:#c084fc;font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.empty h3{font-size:.9rem;font-weight:700;color:#c084fc;letter-spacing:1px}
+.empty p{font-size:.75rem;color:var(--muted)}
+
+/* ── CTA ── */
+.cta{
+  grid-column:span 3;border-radius:22px;padding:28px 22px;
+  text-align:center;position:relative;overflow:hidden;
+  animation:riseIn .6s ease .45s both;
+  background:linear-gradient(135deg,#140520 0%,#0b1530 50%,#081818 100%);
+  border:1px solid rgba(255,255,255,.07);
+}
+.cta::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 15% 50%,rgba(255,45,120,.14) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 50%,rgba(0,245,255,.1) 0%,transparent 55%);
+  animation:ctaBreath 6s ease-in-out infinite alternate;
+}
+@keyframes ctaBreath{0%{opacity:.6}100%{opacity:1}}
+.cta-inner{position:relative;z-index:1}
+.cta h2{
+  font-family:'Orbitron',monospace;font-size:clamp(1rem,3vw,1.5rem);font-weight:900;
+  background:linear-gradient(90deg,#ff2d78,#ffe600,#00f5ff);background-size:200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 3s linear infinite;margin-bottom:8px;
+}
+.cta p{font-size:.9rem;color:rgba(232,234,246,.65)}
+.cta .note{margin-top:5px;font-size:.78rem;color:var(--muted)}
+
+.cta-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:16px}
+.cta-btn{
+  font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;
+  letter-spacing:1.5px;padding:10px 24px;border-radius:999px;border:none;
+  display:flex;align-items:center;gap:7px;text-transform:uppercase;cursor:default;
+  transition:transform .2s;animation:btnBreathe 3s ease-in-out infinite;
+}
+.cta-btn:nth-child(2){animation-delay:.5s}
+.cta-btn:nth-child(3){animation-delay:1s}
+@keyframes btnBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.cb1{background:#ff2d78;color:#fff;box-shadow:0 4px 20px rgba(255,45,120,.5)}
+.cb2{background:#fff;color:#1a1a2e;box-shadow:0 4px 12px rgba(255,255,255,.2)}
+.cb3{background:rgba(255,255,255,.08);color:#e8eaf6;border:1px solid rgba(255,255,255,.15)}
+
+/* ── Auto hype popups ── */
+.hype-popup{
+  position:fixed;z-index:50;
+  font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;
+  letter-spacing:1px;padding:8px 18px;border-radius:10px;
+  background:rgba(14,16,32,.9);border:1px solid;
+  pointer-events:none;
+  animation:hypeFloat 3.5s ease forwards;
+  white-space:nowrap;
+}
+@keyframes hypeFloat{
+  0%  {opacity:0;transform:translateY(0) scale(.8)}
+  15% {opacity:1;transform:translateY(-10px) scale(1)}
+  70% {opacity:1;transform:translateY(-30px) scale(1)}
+  100%{opacity:0;transform:translateY(-60px) scale(.9)}
+}
+
+/* ── Big floating emojis ── */
+.big-emoji{
+  position:fixed;font-size:3rem;pointer-events:none;z-index:40;
+  animation:bigFloat 4s ease forwards;
+}
+@keyframes bigFloat{
+  0%  {opacity:0;transform:translateY(0) scale(.5) rotate(-10deg)}
+  20% {opacity:1;transform:translateY(-40px) scale(1.1) rotate(5deg)}
+  80% {opacity:.8;transform:translateY(-160px) scale(1) rotate(-5deg)}
+  100%{opacity:0;transform:translateY(-220px) scale(.6) rotate(10deg)}
+}
+
+/* ── Streak fire effect ── */
+.streak{
+  position:fixed;pointer-events:none;z-index:30;
+  width:2px;border-radius:999px;
+  animation:streakFall linear forwards;
+  opacity:.7;
+}
+@keyframes streakFall{
+  0%  {opacity:.7;transform:translateY(-20px)}
+  100%{opacity:0;transform:translateY(100vh)}
+}
+
+/* ── Confetti canvas ── */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
+</style>
 </head>
 <body>
 
-  <h1 class="page-title">🌟 Top Creators</h1>
+<div class="aurora"></div>
 
+<!-- CSS particles -->
+<div class="particles" id="cssParticles"></div>
+
+<canvas id="confetti"></canvas>
+
+<div class="page">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="live-chip">🔴 LIVE</div>
+      <span class="topbar-title">SUB COUNT RACE</span>
+    </div>
+    <div class="clock" id="clock">00:00:00</div>
+  </div>
+
+  <!-- Title -->
+  <div class="header">
+    <h1>TOP CREATORS</h1>
+    <p class="sub">⚡ Live subscriber counts · Real-time race</p>
+  </div>
+
+  <!-- Hype ticker -->
+  <div class="ticker-outer">
+    <div class="ticker-inner">
+      ⚡ LIVE SUB RACE IN PROGRESS &nbsp;·&nbsp; 🏆 WHO WILL WIN TODAY? &nbsp;·&nbsp; 🔥 MRBEAST UNSTOPPABLE &nbsp;·&nbsp; 🎵 T-SERIES CLOSING IN &nbsp;·&nbsp; 🎶 COCOMELON NEVER STOPS &nbsp;·&nbsp; 📺 SET INDIA RISING &nbsp;·&nbsp; 🎮 VLAD & NIKI GOING CRAZY &nbsp;·&nbsp; ✨ YOUR CHANNEL COULD BE #6 &nbsp;·&nbsp; 💎 SUBSCRIBE · LIKE · COMMENT &nbsp;·&nbsp;
+      ⚡ LIVE SUB RACE IN PROGRESS &nbsp;·&nbsp; 🏆 WHO WILL WIN TODAY? &nbsp;·&nbsp; 🔥 MRBEAST UNSTOPPABLE &nbsp;·&nbsp; 🎵 T-SERIES CLOSING IN &nbsp;·&nbsp; 🎶 COCOMELON NEVER STOPS &nbsp;·&nbsp; 📺 SET INDIA RISING &nbsp;·&nbsp; 🎮 VLAD & NIKI GOING CRAZY &nbsp;·&nbsp; ✨ YOUR CHANNEL COULD BE #6 &nbsp;·&nbsp; 💎 SUBSCRIBE · LIKE · COMMENT &nbsp;·&nbsp;
+    </div>
+  </div>
+
+  <!-- Race track bars -->
+  <div class="race-label">📊 Relative Subscriber Race</div>
+  <div class="race-track">
+    <div class="race-row">
+      <span class="race-rank" style="color:#ffd200">#1</span>
+      <span class="race-name">MrBeast</span>
+      <div class="race-bar-bg"><div class="race-bar" id="rb1" style="width:0%;background:linear-gradient(90deg,#f7971e,#ffd200)"></div></div>
+      <span class="race-pct" id="rp1">—</span>
+    </div>
+    <div class="race-row">
+      <span class="race-rank" style="color:#c0c0c0">#2</span>
+      <span class="race-name">T-Series</span>
+      <div class="race-bar-bg"><div class="race-bar" id="rb2" style="width:0%;background:linear-gradient(90deg,#c8c8c8,#888)"></div></div>
+      <span class="race-pct" id="rp2">—</span>
+    </div>
+    <div class="race-row">
+      <span class="race-rank" style="color:#e17055">#3</span>
+      <span class="race-name">Cocomelon</span>
+      <div class="race-bar-bg"><div class="race-bar" id="rb3" style="width:0%;background:linear-gradient(90deg,#cd6133,#e17055)"></div></div>
+      <span class="race-pct" id="rp3">—</span>
+    </div>
+    <div class="race-row">
+      <span class="race-rank" style="color:#a855f7">#4</span>
+      <span class="race-name">SET India</span>
+      <div class="race-bar-bg"><div class="race-bar" id="rb4" style="width:0%;background:linear-gradient(90deg,#7c3aed,#a855f7)"></div></div>
+      <span class="race-pct" id="rp4">—</span>
+    </div>
+    <div class="race-row">
+      <span class="race-rank" style="color:#22d3ee">#5</span>
+      <span class="race-name">Vlad & Niki</span>
+      <div class="race-bar-bg"><div class="race-bar" id="rb5" style="width:0%;background:linear-gradient(90deg,#0891b2,#22d3ee)"></div></div>
+      <span class="race-pct" id="rp5">—</span>
+    </div>
+  </div>
+
+  <!-- Cards -->
   <div class="grid">
 
-    <!-- #1 MrBeast -->
-    <div class="card">
-      <div class="card-header">
-        <div class="rank-badge gold">#1</div>
-        <span class="card-label">Live counter</span>
+    <div class="card" data-rank="1">
+      <div class="card-head">
+        <div class="rank-wrap"><div class="badge b1">#1</div><span class="cname">MrBeast</span></div>
+        <span class="pill">LIVE</span>
       </div>
-      <iframe loading="lazy" frameborder="0"
-        src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCX6OQ3DkcsbYNE6H8uQQuVA"></iframe>
+      <iframe loading="lazy" frameborder="0" src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCX6OQ3DkcsbYNE6H8uQQuVA"></iframe>
     </div>
 
-    <!-- #2 T-Series -->
-    <div class="card">
-      <div class="card-header">
-        <div class="rank-badge silver">#2</div>
-        <span class="card-label">Live counter</span>
+    <div class="card" data-rank="2">
+      <div class="card-head">
+        <div class="rank-wrap"><div class="badge b2">#2</div><span class="cname">T-Series</span></div>
+        <span class="pill">LIVE</span>
       </div>
-      <iframe loading="lazy" frameborder="0"
-        src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCq-Fj5jknLsUf-MWSy4_brA"></iframe>
+      <iframe loading="lazy" frameborder="0" src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCq-Fj5jknLsUf-MWSy4_brA"></iframe>
     </div>
 
-    <!-- #3 Cocomelon -->
-    <div class="card">
-      <div class="card-header">
-        <div class="rank-badge bronze">#3</div>
-        <span class="card-label">Live counter</span>
+    <div class="card" data-rank="3">
+      <div class="card-head">
+        <div class="rank-wrap"><div class="badge b3">#3</div><span class="cname">Cocomelon</span></div>
+        <span class="pill">LIVE</span>
       </div>
-      <iframe loading="lazy" frameborder="0"
-        src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCbCmjCuTUZos6Inko4u57UQ"></iframe>
+      <iframe loading="lazy" frameborder="0" src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCbCmjCuTUZos6Inko4u57UQ"></iframe>
     </div>
 
-    <!-- #4 SET India -->
-    <div class="card">
-      <div class="card-header">
-        <div class="rank-badge">#4</div>
-        <span class="card-label">Live counter</span>
+    <div class="card" data-rank="4">
+      <div class="card-head">
+        <div class="rank-wrap"><div class="badge b4">#4</div><span class="cname">SET India</span></div>
+        <span class="pill">LIVE</span>
       </div>
-      <iframe loading="lazy" frameborder="0"
-        src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCpEhnqL0y41EpW2TvWAHD7Q"></iframe>
+      <iframe loading="lazy" frameborder="0" src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCpEhnqL0y41EpW2TvWAHD7Q"></iframe>
     </div>
 
-    <!-- #5 Vlad and Niki -->
-    <div class="card">
-      <div class="card-header">
-        <div class="rank-badge">#5</div>
-        <span class="card-label">Live counter</span>
+    <div class="card" data-rank="5">
+      <div class="card-head">
+        <div class="rank-wrap"><div class="badge b5">#5</div><span class="cname">Vlad & Niki</span></div>
+        <span class="pill">LIVE</span>
       </div>
-      <iframe loading="lazy" frameborder="0"
-        src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCvlE5gTbOvjiolFlEm-c_Ow"></iframe>
+      <iframe loading="lazy" frameborder="0" src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCvlE5gTbOvjiolFlEm-c_Ow"></iframe>
     </div>
 
-    <!-- #6 Empty slot -->
-    <div class="empty-slot">
-      <div class="empty-rank">#6</div>
-      <h3>✨ Your Channel Could Be Here!</h3>
-      <p>Subscribe 👍 Like ❤️ Comment 💬</p>
+    <div class="empty">
+      <div class="empty-badge">#6</div>
+      <h3>✨ YOUR CHANNEL?</h3>
+      <p>Subscribe · Like · Comment</p>
+      <p style="font-size:.7rem;color:#7c3aed;margin-top:4px;letter-spacing:1px">DURING THE LIVE!</p>
     </div>
 
-    <!-- CTA Banner -->
-    <div class="cta-card">
-      <h2>🔥 Want to See Your Channel Here?</h2>
-      <p>✅ Subscribe 👍 | ❤️ Like | 💬 Comment ✍️</p>
-      <p class="sub-text">Do this during the live &amp; I'll add your channel here!</p>
-      <div class="btn-row">
-        <button class="btn btn-sub">🔴 Subscribe</button>
-        <button class="btn btn-like">👍 Like</button>
-        <button class="btn btn-cmt">💬 Comment</button>
+    <div class="cta">
+      <div class="cta-inner">
+        <h2>🔥 WANT TO JOIN THE RACE?</h2>
+        <p>✅ Subscribe &nbsp;·&nbsp; 👍 Like &nbsp;·&nbsp; 💬 Comment</p>
+        <p class="note">Do all 3 during the live and I'll add your channel!</p>
+        <div class="cta-btns">
+          <div class="cta-btn cb1">🔴 SUBSCRIBE</div>
+          <div class="cta-btn cb2">👍 LIKE</div>
+          <div class="cta-btn cb3">💬 COMMENT</div>
+        </div>
       </div>
     </div>
 
   </div>
+</div>
+
+<script>
+// ── Clock ──
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = h+':'+m+':'+s;
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ── CSS Particles ──
+const colors = ['#00f5ff','#ff2d78','#ffe600','#a855f7','#22d3ee','#ffffff'];
+const container = document.getElementById('cssParticles');
+for(let i = 0; i < 40; i++) {
+  const p = document.createElement('div');
+  p.className = 'p';
+  const size = Math.random() * 3 + 1;
+  p.style.cssText = `
+    width:${size}px;height:${size}px;
+    left:${Math.random()*100}%;
+    background:${colors[Math.floor(Math.random()*colors.length)]};
+    animation-duration:${8+Math.random()*14}s;
+    animation-delay:${-Math.random()*20}s;
+    filter:blur(${Math.random()>.5?'0px':'1px'});
+  `;
+  container.appendChild(p);
+}
+
+// ── Race bars (simulated — real data not accessible cross-origin) ──
+// Approximate real subscriber counts in millions for visual ratio
+const approxSubs = [320, 280, 175, 180, 120]; // MB, TS, Coco, SET, V&N
+const maxSub = Math.max(...approxSubs);
+const barEls = ['rb1','rb2','rb3','rb4','rb5'].map(id => document.getElementById(id));
+const pctEls = ['rp1','rp2','rp3','rp4','rp5'].map(id => document.getElementById(id));
+const pcts   = approxSubs.map(s => Math.round((s/maxSub)*100));
+
+// Animate bars in on load
+setTimeout(() => {
+  barEls.forEach((el, i) => {
+    el.style.width = pcts[i] + '%';
+  });
+  pctEls.forEach((el, i) => {
+    el.textContent = approxSubs[i] + 'M';
+  });
+  // small random fluctuations every 8s to feel alive
+  setInterval(() => {
+    barEls.forEach((el, i) => {
+      const nudge = (Math.random() - 0.5) * 1.5;
+      const newW = Math.min(100, Math.max(20, pcts[i] + nudge));
+      el.style.width = newW + '%';
+    });
+  }, 8000);
+}, 1000);
+
+// ── Confetti ──
+const cc = document.getElementById('confetti');
+const ctx = cc.getContext('2d');
+cc.width = innerWidth; cc.height = innerHeight;
+window.addEventListener('resize', () => { cc.width = innerWidth; cc.height = innerHeight; });
+let pieces = [];
+
+function burst(x, y, count = 80) {
+  for(let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 6 + 2;
+    pieces.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 3,
+      w: Math.random() * 9 + 3,
+      h: Math.random() * 5 + 2,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      rot: Math.random() * 360,
+      rv: (Math.random()-0.5) * 12,
+      life: 1, gravity: 0.12
+    });
+  }
+}
+
+(function animConfetti() {
+  ctx.clearRect(0,0,cc.width,cc.height);
+  pieces = pieces.filter(p => p.life > 0);
+  pieces.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.vy += p.gravity;
+    p.rot += p.rv; p.life -= 0.014;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot * Math.PI/180);
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    ctx.restore();
+  });
+  requestAnimationFrame(animConfetti);
+})();
+
+// ── Hype messages ──
+const hypeMessages = [
+  {text:'🔥 MrBeast GAINING FAST!', color:'#ffd200'},
+  {text:'📈 +50K subs in last hour!', color:'#00f5ff'},
+  {text:'🏆 RACE IS ON!', color:'#ff2d78'},
+  {text:'⚡ T-SERIES CLOSING IN!', color:'#c0c0c0'},
+  {text:'🚀 WHO BREAKS 300M FIRST?', color:'#a855f7'},
+  {text:'💥 SUB SPIKE DETECTED!', color:'#ff2d78'},
+  {text:'🎯 MRBEAST VS T-SERIES!', color:'#ffe600'},
+  {text:'👑 LEGEND STATUS!', color:'#ffd200'},
+  {text:'🌍 THE WORLD IS WATCHING!', color:'#00f5ff'},
+  {text:'🔴 LIVE RACE CONTINUES...', color:'#ff2d78'},
+];
+
+function spawnHype() {
+  const msg = hypeMessages[Math.floor(Math.random()*hypeMessages.length)];
+  const el = document.createElement('div');
+  el.className = 'hype-popup';
+  el.textContent = msg.text;
+  el.style.color = msg.color;
+  el.style.borderColor = msg.color + '44';
+  el.style.left = (10 + Math.random() * 60) + '%';
+  el.style.top = (20 + Math.random() * 55) + '%';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3600);
+}
+
+// ── Big floating emojis ──
+const bigEmojis = ['🔥','🚀','⚡','🏆','💥','🎯','👑','🌟','💎','🎉'];
+function spawnEmoji() {
+  const el = document.createElement('div');
+  el.className = 'big-emoji';
+  el.textContent = bigEmojis[Math.floor(Math.random()*bigEmojis.length)];
+  el.style.left = (5 + Math.random() * 85) + '%';
+  el.style.bottom = (5 + Math.random() * 20) + '%';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 4100);
+}
+
+// ── Light streaks ──
+function spawnStreak() {
+  const el = document.createElement('div');
+  el.className = 'streak';
+  const h = 40 + Math.random() * 120;
+  el.style.cssText = `
+    left:${Math.random()*100}%;top:0;
+    height:${h}px;
+    background:linear-gradient(to bottom,${colors[Math.floor(Math.random()*colors.length)]},transparent);
+    animation-duration:${0.6+Math.random()*1.2}s;
+  `;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1400);
+}
+
+// ── Schedule events ──
+// Confetti bursts
+function scheduleBurst() {
+  setTimeout(() => {
+    burst(innerWidth * (.2 + Math.random() * .6), innerHeight * .3);
+    scheduleBurst();
+  }, 12000 + Math.random() * 18000);
+}
+scheduleBurst();
+// Opening burst
+setTimeout(() => burst(innerWidth/2, innerHeight/2, 120), 800);
+setTimeout(() => burst(innerWidth*.25, innerHeight*.4, 60), 1200);
+setTimeout(() => burst(innerWidth*.75, innerHeight*.4, 60), 1500);
+
+// Hype popups every 4-9s
+function scheduleHype() {
+  setTimeout(() => { spawnHype(); scheduleHype(); }, 4000 + Math.random() * 5000);
+}
+setTimeout(scheduleHype, 2500);
+
+// Big emojis every 6-14s
+function scheduleEmoji() {
+  setTimeout(() => { spawnEmoji(); scheduleEmoji(); }, 6000 + Math.random() * 8000);
+}
+setTimeout(scheduleEmoji, 3500);
+
+// Streaks every 1.5-4s
+function scheduleStreak() {
+  setTimeout(() => { spawnStreak(); scheduleStreak(); }, 1500 + Math.random() * 2500);
+}
+scheduleStreak();
+</script>
 </body>
 </html>
